@@ -553,8 +553,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     <!-- 오늘 하루 변경사항 (노란 박스) -->
     <div class="vehicle-note-box">
       <div class="vehicle-note-hd">
-        <span>🔔 오늘 하루 변경사항</span>
-        <span class="vehicle-note-badge">오늘만 적용</span>
+        <span id="vtdNoteHdTitle">🔔 변경사항</span>
+        <span class="vehicle-note-badge" id="vtdNoteBadge">오늘만 적용</span>
       </div>
       <textarea id="taVehicleNote" placeholder="오늘 하루만 적용되는 운행 변경사항을 입력하세요...&#10;예) 1호차 결항 · 운행 시간 변경 · 임시 노선 추가 등" style="width:100%;border:none;resize:none;font-family:inherit;font-size:13px;line-height:1.75;padding:12px 13px;min-height:100px;color:var(--text);background:#FFFDF0;"></textarea>
       <div style="padding:6px 13px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
@@ -566,7 +566,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     <!-- 오늘의 운행표 (읽기 전용) -->
     <div class="vtd-card">
       <div class="vtd-hd">
-        <span>🚗 오늘의 운행표</span>
+        <span id="vtdHdTitle">🚗 운행표</span>
         <span class="vtd-day-badge" id="vtdDayBadge"></span>
       </div>
       <div id="vehicleTodayCard"></div>
@@ -1431,10 +1431,25 @@ function buildVehicleWeekGrid() {
 }
 
 function renderVehicleTodayCard() {
-  const todayKey = getTodayVehicleKey();
-  const dow = currentDate.getDay();
+  const viewDate = currentDate;
+  const dow = viewDate.getDay();
+  const todayKey = (dow >= 1 && dow <= 5) ? VEHICLE_DAY_KEYS[dow - 1] : null;
+  const mo = viewDate.getMonth() + 1, da = viewDate.getDate();
+  const dayLabel = todayKey ? VEHICLE_DAY_LABELS[dow - 1]
+                            : (['일','월','화','수','목','금','토'][dow] + '요일');
+
+  const hdTitle = document.getElementById('vtdHdTitle');
+  if (hdTitle) hdTitle.textContent = `🚗 ${mo}월 ${da}일 운행표`;
+
+  const noteTitle = document.getElementById('vtdNoteHdTitle');
+  if (noteTitle) noteTitle.textContent = `🔔 ${mo}월 ${da}일 변경사항`;
+
+  const noteBadge = document.getElementById('vtdNoteBadge');
+  if (noteBadge) noteBadge.textContent = todayKey ? '해당일만 적용' : '해당일 메모';
+
   const badge = document.getElementById('vtdDayBadge');
-  if (badge) badge.textContent = todayKey ? VEHICLE_DAY_LABELS[dow - 1] : '주말';
+  if (badge) badge.textContent = dayLabel;
+
   const wrap = document.getElementById('vehicleTodayCard');
   if (!wrap) return;
   if (!todayKey) {
