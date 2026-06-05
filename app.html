@@ -73,8 +73,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .ical-day.today{border-color:var(--yellow);}
 .ical-day.has-data{background:rgba(19,82,168,0.5);}
 .ical-day.selected{background:var(--orange)!important;border-color:var(--orange);}
-.ical-day.wknd{opacity:0.3;cursor:default;}
-.ical-day.wknd:hover{background:rgba(255,255,255,0.06);}
+.ical-day.wknd{opacity:0.55;}
+.ical-day.wknd:hover{background:rgba(255,255,255,0.15);}
 .ical-day.other-m{opacity:0.15;cursor:default;}
 .ical-dn{font-size:10px;font-weight:700;color:rgba(255,255,255,0.9);}
 .ical-day.isSun .ical-dn{color:#FF8A80;} .ical-day.isSat .ical-dn{color:#82B1FF;}
@@ -885,6 +885,7 @@ function loadCurrentDay() {
   document.getElementById('mgrRe').value   = d.mgrRe  || '';
   document.getElementById('mgrOut').value  = d.mgrOut || '';
   loadVehicleNote();
+  renderVehicleTodayCard();
   updateTotals();
   isDirty = false;
 }
@@ -972,7 +973,7 @@ function renderInlineCal() {
     if (key === selKey) cls += ' selected';
     const att = allData[key]?.att ? allData[key].att.reduce((a, b) => a + b, 0) : 0;
     const attHtml = att > 0 ? `<div class="ical-att">${att}명</div>` : '';
-    const click = isWknd ? '' : `onclick="icalSelectDay('${key}')"`;
+    const click = `onclick="icalSelectDay('${key}')"`;
     html += `<div class="${cls}" ${click}><div class="ical-dn">${dt}</div>${attHtml}</div>`;
   }
   document.getElementById('icalDays').innerHTML = html;
@@ -1395,7 +1396,7 @@ window.showView = (name) => {
   if (viewMap[name])      document.getElementById(viewMap[name]).classList.add('on');
   if (bniMap[name] !== undefined) document.getElementById('bni' + bniMap[name]).classList.add('on');
   if (name === 'monthly') updateMonthStrip();
-  if (name === 'vehicle') loadVehicleNote();
+  if (name === 'vehicle') { loadVehicleNote(); renderVehicleTodayCard(); }
 };
 
 // ── 미저장 경고 모달 ──────────────────────────────────────────────
@@ -1437,7 +1438,10 @@ function renderVehicleTodayCard() {
   const wrap = document.getElementById('vehicleTodayCard');
   if (!wrap) return;
   if (!todayKey) {
-    wrap.innerHTML = `<div style="text-align:center;padding:28px 16px;color:var(--gray);font-size:15px;line-height:1.7;">주말에는 운행이 없습니다</div>`;
+    const note = (allData[dateKey(currentDate)] || {}).vehicleNote || '';
+    wrap.innerHTML = note
+      ? `<div style="padding:16px;font-size:15px;color:var(--text);line-height:1.85;white-space:pre-wrap;">${note.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`
+      : `<div style="text-align:center;padding:28px 16px;color:var(--gray);font-size:15px;line-height:1.7;">주말 — 정기 운행 없음</div>`;
     return;
   }
   const sch = vehicleSchedule[todayKey] || {};
