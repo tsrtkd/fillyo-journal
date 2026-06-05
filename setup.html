@@ -67,8 +67,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .bu-row-num{width:28px;height:28px;background:var(--navy);color:white;border-radius:7px;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .bu-inp{flex:1;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;color:var(--text);background:#FAFBFF;outline:none;transition:border-color 0.15s;}
 .bu-inp:focus{border-color:var(--blue);}
-.bu-cap{width:52px;border:1.5px solid var(--border);border-radius:8px;padding:8px 6px;font-size:13px;font-family:inherit;color:var(--text);background:#FAFBFF;outline:none;text-align:center;transition:border-color 0.15s;}
-.bu-cap:focus{border-color:var(--blue);}
 
 /* BOTTOM BAR */
 .bottom-bar{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);padding:12px 16px;display:flex;gap:8px;}
@@ -151,8 +149,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
       </div>
     </div>
     <div class="sec" id="buLabelSec">
-      <div class="sec-title"><span>✏️</span> 부 이름 &amp; 기본 정원</div>
-      <div class="field-hint" style="margin-bottom:10px;">왼쪽: 부 이름 &nbsp;|&nbsp; 오른쪽: 기본 정원</div>
+      <div class="sec-title"><span>✏️</span> 부 이름</div>
       <div class="bu-grid" id="buGrid"></div>
     </div>
     <div class="sec" id="proInviteSec" style="display:none;">
@@ -236,7 +233,7 @@ function initUI() {
 function buildBuCountRow() {
   const row = document.getElementById('buCountRow');
   row.innerHTML = '';
-  [1,2,3,4,5,6].forEach(n => {
+  [1,2,3,4,5,6,7,8,9,10].forEach(n => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'bu-chip' + (n === 6 ? ' on' : '');
@@ -257,14 +254,13 @@ function setBuCount(n) {
 function buildBuGrid(n) {
   const grid = document.getElementById('buGrid');
   grid.innerHTML = '';
-  const defaultLabels = ['1부','2부','3부','4부','5부','6부'];
+  const defaultLabels = ['1부','2부','3부','4부','5부','6부','7부','8부','9부','10부'];
   for (let i = 0; i < n; i++) {
     const row = document.createElement('div');
     row.className = 'bu-row';
     row.innerHTML = `
       <div class="bu-row-num">${i+1}</div>
       <input class="bu-inp" id="buLabel_${i}" placeholder="${defaultLabels[i]}" value="${defaultLabels[i]}" maxlength="6">
-      <input class="bu-cap" id="buCap_${i}" type="number" value="20" min="1" max="999" title="기본 정원">
     `;
     grid.appendChild(row);
   }
@@ -335,10 +331,9 @@ function buildSummary() {
   const type  = document.getElementById('academyType');
   const typeLabel = type.options[type.selectedIndex].text;
 
-  const labels = [], caps = [];
+  const labels = [];
   for (let i = 0; i < buCount; i++) {
     labels.push(document.getElementById(`buLabel_${i}`).value.trim() || `${i+1}부`);
-    caps.push(parseInt(document.getElementById(`buCap_${i}`).value) || 20);
   }
 
   document.getElementById('completeTitle').textContent = `${name} 설정 완료!`;
@@ -350,7 +345,7 @@ function buildSummary() {
     <div>👤 원장: <strong>${owner}</strong></div>
     <div>🏷️ 유형: <strong>${typeLabel}</strong></div>
     <div>⏰ 부제: <strong>${buCount}부제</strong></div>
-    <div>📋 부 구성: <strong>${labels.map((l,i)=>`${l}(${caps[i]}명)`).join(' · ')}</strong></div>
+    <div>📋 부 구성: <strong>${labels.join(' · ')}</strong></div>
     <div>💳 플랜: <strong>${userPlanType === 'pro' ? 'Pro (유료)' : '무료'}</strong></div>
   `;
 }
@@ -371,10 +366,9 @@ async function saveAndFinish() {
     const owner = document.getElementById('ownerName').value.trim();
     const type  = document.getElementById('academyType').value;
 
-    const buLabels = [], buDefaults = [];
+    const buLabels = [];
     for (let i = 0; i < buCount; i++) {
       buLabels.push(document.getElementById(`buLabel_${i}`).value.trim() || `${i+1}부`);
-      buDefaults.push(parseInt(document.getElementById(`buCap_${i}`).value) || 20);
     }
 
     // /academies/{academyId} 저장
@@ -386,7 +380,6 @@ async function saveAndFinish() {
         planType:   userPlanType,
         buCount,
         buLabels,
-        buDefaults,
         createdAt:  Date.now(),
       },
       members: { [uid]: 'owner' },

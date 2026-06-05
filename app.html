@@ -558,7 +558,6 @@ const db     = getDatabase(fbApp);
 // ── 상태 변수 ─────────────────────────────────────────────────────
 const DAYS_KR = ['일','월','화','수','목','금','토'];
 let BU_LABELS  = ['1부','2부','3부','4부','5부','6부'];
-let BU_DEFAULT = [20,20,20,20,20,20];
 
 let currentUser  = null;
 let academyId    = null;
@@ -608,10 +607,8 @@ onAuthStateChanged(auth, async (user) => {
     if (acSnap.exists()) {
       academySettings = acSnap.val();
       BU_LABELS  = academySettings.buLabels  || BU_LABELS;
-      BU_DEFAULT = academySettings.buDefaults || BU_DEFAULT;
       const buCount = academySettings.buCount || BU_LABELS.length;
       BU_LABELS  = BU_LABELS.slice(0, buCount);
-      BU_DEFAULT = BU_DEFAULT.slice(0, buCount);
     }
 
     // 헤더 학원명 표시
