@@ -230,7 +230,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .vtd-acc-arrow.open{transform:rotate(0deg);}
 .vtd-acc-body{overflow:hidden;max-height:0;transition:max-height 0.25s ease;}
 .vtd-acc-body.open{max-height:500px;}
-.vtd-acc-content{padding:4px 16px 22px;font-size:15px;color:var(--text);line-height:1.85;}
+.vtd-acc-content{padding:4px 16px 22px;font-size:15px;color:var(--text);line-height:1.85;min-height:200px;white-space:pre-wrap;}
 .vtd-empty{color:var(--gray);font-style:italic;font-size:14px;}
 .vehicle-edit-btn{width:100%;background:white;border:1.5px solid var(--border);border-radius:12px;padding:14px;font-size:14px;font-weight:700;color:var(--gray);cursor:pointer;font-family:inherit;margin-bottom:10px;box-shadow:var(--shadow);display:block;}
 .vehicle-edit-btn:active{background:var(--bg);}
@@ -244,7 +244,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .vehicle-car-row{display:grid;grid-template-columns:44px 1fr;gap:8px;align-items:flex-start;padding:12px 13px;border-bottom:1px solid #F5F7FA;}
 .vehicle-car-row:last-child{border-bottom:none;}
 .vehicle-car-lbl{font-size:13px;font-weight:700;color:var(--blue);white-space:nowrap;padding-top:14px;}
-.vehicle-car-inp{border:1.5px solid var(--border);border-radius:8px;padding:12px 13px;font-size:16px;font-family:inherit;color:var(--text);width:100%;min-height:320px;resize:none;line-height:1.7;}
+.vehicle-car-inp{border:1.5px solid var(--border);border-radius:8px;padding:12px 13px;font-size:15px;font-family:inherit;color:var(--text);width:100%;min-height:500px;resize:vertical;line-height:1.8;}
 .vehicle-car-inp:focus{outline:none;border-color:var(--blue);background:#F8FBFF;}
 
 /* TOAST */
@@ -556,7 +556,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
         <span id="vtdNoteHdTitle">🔔 변경사항</span>
         <span class="vehicle-note-badge" id="vtdNoteBadge">오늘만 적용</span>
       </div>
-      <textarea id="taVehicleNote" placeholder="오늘 하루만 적용되는 운행 변경사항을 입력하세요...&#10;예) 1호차 결항 · 운행 시간 변경 · 임시 노선 추가 등" style="width:100%;border:none;resize:none;font-family:inherit;font-size:13px;line-height:1.75;padding:12px 13px;min-height:100px;color:var(--text);background:#FFFDF0;"></textarea>
+      <textarea id="taVehicleNote" placeholder="오늘 하루만 적용되는 운행 변경사항을 입력하세요...&#10;예) 1호차 결항 · 운행 시간 변경 · 임시 노선 추가 등" style="width:100%;border:none;resize:none;font-family:inherit;font-size:13px;line-height:1.75;padding:12px 13px;min-height:80px;color:var(--text);background:#FFFDF0;"></textarea>
       <div style="padding:6px 13px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
         <span style="font-size:11px;color:#B8860B;">📅 다음날 자동으로 초기화됩니다</span>
         <button onclick="saveVehicleNote()" style="background:var(--yellow);color:var(--navy);border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">저장</button>
