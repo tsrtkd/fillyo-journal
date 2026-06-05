@@ -216,14 +216,22 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .vehicle-note-box{background:#FFF8E1;border:2px solid var(--yellow);border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:0 2px 10px rgba(249,168,37,0.18);}
 .vehicle-note-hd{background:var(--yellow);color:var(--navy);padding:9px 13px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
 .vehicle-note-badge{background:var(--navy);color:white;font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700;letter-spacing:.3px;}
-.vtd-card{background:white;border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow);}
-.vtd-hd{background:#1565C0;color:white;padding:9px 13px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
-.vtd-day-badge{background:rgba(255,255,255,0.22);border-radius:8px;padding:2px 10px;font-size:11px;font-weight:700;}
-.vtd-row{display:grid;grid-template-columns:44px 1fr;gap:8px;align-items:flex-start;padding:12px 13px;border-bottom:1px solid var(--border);}
-.vtd-row:last-child{border-bottom:none;}
-.vtd-lbl{font-size:11px;font-weight:700;color:var(--blue);padding-top:2px;white-space:nowrap;}
-.vtd-val{font-size:13px;color:var(--text);line-height:1.6;}
-.vtd-empty{color:var(--gray);font-style:italic;font-size:12px;}
+.vtd-card{background:white;border-radius:16px;margin-bottom:12px;overflow:hidden;box-shadow:0 4px 16px rgba(11,31,58,0.12);}
+.vtd-hd{background:#1565C0;color:white;padding:14px 16px;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
+.vtd-day-badge{background:rgba(255,255,255,0.22);border-radius:8px;padding:4px 12px;font-size:14px;font-weight:700;}
+.vtd-acc-item{border-bottom:1px solid var(--border);}
+.vtd-acc-item:last-child{border-bottom:none;}
+.vtd-acc-hd{display:flex;align-items:center;justify-content:space-between;padding:18px 16px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;}
+.vtd-acc-hd:active{background:#F4F7FF;}
+.vtd-acc-lbl{display:flex;align-items:center;gap:12px;}
+.vtd-acc-icon{font-size:26px;}
+.vtd-acc-name{font-size:18px;font-weight:700;color:var(--navy);}
+.vtd-acc-arrow{color:var(--blue);font-size:16px;transition:transform 0.22s;display:inline-block;transform:rotate(-90deg);}
+.vtd-acc-arrow.open{transform:rotate(0deg);}
+.vtd-acc-body{overflow:hidden;max-height:0;transition:max-height 0.25s ease;}
+.vtd-acc-body.open{max-height:500px;}
+.vtd-acc-content{padding:4px 16px 22px;font-size:15px;color:var(--text);line-height:1.85;}
+.vtd-empty{color:var(--gray);font-style:italic;font-size:14px;}
 .vehicle-edit-btn{width:100%;background:white;border:1.5px solid var(--border);border-radius:12px;padding:14px;font-size:14px;font-weight:700;color:var(--gray);cursor:pointer;font-family:inherit;margin-bottom:10px;box-shadow:var(--shadow);display:block;}
 .vehicle-edit-btn:active{background:var(--bg);}
 .vedit-panel{background:white;border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow);display:none;}
@@ -1429,21 +1437,31 @@ function renderVehicleTodayCard() {
   const wrap = document.getElementById('vehicleTodayCard');
   if (!wrap) return;
   if (!todayKey) {
-    wrap.innerHTML = `<div style="text-align:center;padding:22px 16px;color:var(--gray);font-size:13px;line-height:1.7;">주말에는 운행이 없습니다</div>`;
+    wrap.innerHTML = `<div style="text-align:center;padding:28px 16px;color:var(--gray);font-size:15px;line-height:1.7;">주말에는 운행이 없습니다</div>`;
     return;
   }
   const sch = vehicleSchedule[todayKey] || {};
   const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
-  wrap.innerHTML = `
-    <div class="vtd-row">
-      <span class="vtd-lbl">1호차</span>
-      <span class="vtd-val${sch.car1 ? '' : ' vtd-empty'}">${sch.car1 ? esc(sch.car1) : '등록된 운행 없음'}</span>
-    </div>
-    <div class="vtd-row">
-      <span class="vtd-lbl">2호차</span>
-      <span class="vtd-val${sch.car2 ? '' : ' vtd-empty'}">${sch.car2 ? esc(sch.car2) : '등록된 운행 없음'}</span>
+  const makeItem = (id, icon, label, val) => `
+    <div class="vtd-acc-item">
+      <div class="vtd-acc-hd" onclick="toggleVehicleAcc('${id}')">
+        <div class="vtd-acc-lbl">
+          <span class="vtd-acc-icon">${icon}</span>
+          <span class="vtd-acc-name">${label}</span>
+        </div>
+        <span class="vtd-acc-arrow open" id="vtdArrow_${id}">▼</span>
+      </div>
+      <div class="vtd-acc-body open" id="vtdBody_${id}">
+        <div class="vtd-acc-content${val ? '' : ' vtd-empty'}">${val ? esc(val) : '등록된 운행 없음'}</div>
+      </div>
     </div>`;
+  wrap.innerHTML = makeItem('car1','🚌','1호차', sch.car1) + makeItem('car2','🚐','2호차', sch.car2);
 }
+
+window.toggleVehicleAcc = (id) => {
+  document.getElementById('vtdBody_' + id)?.classList.toggle('open');
+  document.getElementById('vtdArrow_' + id)?.classList.toggle('open');
+};
 
 function renderVehicleEditPanel() {
   const tabsEl = document.getElementById('vehicleEditTabs');
