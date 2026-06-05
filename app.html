@@ -216,13 +216,27 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .vehicle-note-box{background:#FFF8E1;border:2px solid var(--yellow);border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:0 2px 10px rgba(249,168,37,0.18);}
 .vehicle-note-hd{background:var(--yellow);color:var(--navy);padding:9px 13px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
 .vehicle-note-badge{background:var(--navy);color:white;font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700;letter-spacing:.3px;}
-.vehicle-week-day{border-bottom:1px solid var(--border);}
-.vehicle-week-day:last-child{border-bottom:none;}
-.vehicle-day-hd{background:#E8EEF8;padding:7px 13px;font-size:11px;font-weight:700;color:var(--navy);border-bottom:1px solid var(--border);}
-.vehicle-car-row{display:grid;grid-template-columns:44px 1fr;gap:8px;align-items:center;padding:8px 13px;border-bottom:1px solid #F5F7FA;}
+.vtd-card{background:white;border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow);}
+.vtd-hd{background:#1565C0;color:white;padding:9px 13px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
+.vtd-day-badge{background:rgba(255,255,255,0.22);border-radius:8px;padding:2px 10px;font-size:11px;font-weight:700;}
+.vtd-row{display:grid;grid-template-columns:44px 1fr;gap:8px;align-items:flex-start;padding:12px 13px;border-bottom:1px solid var(--border);}
+.vtd-row:last-child{border-bottom:none;}
+.vtd-lbl{font-size:11px;font-weight:700;color:var(--blue);padding-top:2px;white-space:nowrap;}
+.vtd-val{font-size:13px;color:var(--text);line-height:1.6;}
+.vtd-empty{color:var(--gray);font-style:italic;font-size:12px;}
+.vehicle-edit-btn{width:100%;background:white;border:1.5px solid var(--border);border-radius:12px;padding:14px;font-size:14px;font-weight:700;color:var(--gray);cursor:pointer;font-family:inherit;margin-bottom:10px;box-shadow:var(--shadow);display:block;}
+.vehicle-edit-btn:active{background:var(--bg);}
+.vedit-panel{background:white;border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow);display:none;}
+.vedit-panel.open{display:block;}
+.vedit-tabs{display:flex;background:#F4F6FA;border-bottom:2px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.vedit-tabs::-webkit-scrollbar{display:none;}
+.vedit-tab{flex:1;padding:11px 4px;font-size:14px;font-weight:700;color:var(--gray);border:none;background:none;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;text-align:center;min-width:52px;}
+.vedit-tab.on{color:var(--blue);border-bottom-color:var(--blue);background:white;}
+.vedit-tab:active{background:rgba(19,82,168,0.06);}
+.vehicle-car-row{display:grid;grid-template-columns:44px 1fr;gap:8px;align-items:center;padding:12px 13px;border-bottom:1px solid #F5F7FA;}
 .vehicle-car-row:last-child{border-bottom:none;}
 .vehicle-car-lbl{font-size:11px;font-weight:700;color:var(--blue);white-space:nowrap;}
-.vehicle-car-inp{border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;color:var(--text);width:100%;}
+.vehicle-car-inp{border:1.5px solid var(--border);border-radius:8px;padding:9px 10px;font-size:14px;font-family:inherit;color:var(--text);width:100%;}
 .vehicle-car-inp:focus{outline:none;border-color:var(--blue);background:#F8FBFF;}
 
 /* TOAST */
@@ -541,15 +555,28 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
       </div>
     </div>
 
-    <!-- 요일별 정기 운행표 (매주 반복) -->
-    <div class="sec">
-      <div class="sec-hd" style="background:#1565C0;justify-content:space-between;">
-        <span>🚗 요일별 정기 운행표</span>
-        <span style="background:rgba(255,255,255,0.22);border-radius:10px;padding:2px 9px;font-size:10px;font-weight:700;">매주 반복</span>
+    <!-- 오늘의 운행표 (읽기 전용) -->
+    <div class="vtd-card">
+      <div class="vtd-hd">
+        <span>🚗 오늘의 운행표</span>
+        <span class="vtd-day-badge" id="vtdDayBadge"></span>
       </div>
-      <div id="vehicleWeekGrid"></div>
-      <div style="padding:8px 13px 12px;">
-        <button class="save-btn" onclick="saveVehicleSchedule()">📋 운행표 저장 (매주 반복 적용)</button>
+      <div id="vehicleTodayCard"></div>
+    </div>
+
+    <!-- 수정 버튼 -->
+    <button class="vehicle-edit-btn" id="vehicleEditBtn" onclick="toggleVehicleEdit()">✏️ 운행표 수정</button>
+
+    <!-- 편집 패널 (접힘 상태 기본) -->
+    <div class="vedit-panel" id="vehicleEditPanel">
+      <div class="sec-hd" style="background:#1565C0;justify-content:space-between;">
+        <span>✏️ 요일별 운행표 편집</span>
+        <button onclick="toggleVehicleEdit()" style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);color:white;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">닫기</button>
+      </div>
+      <div class="vedit-tabs" id="vehicleEditTabs"></div>
+      <div id="vehicleEditContent"></div>
+      <div style="padding:8px 13px 14px;">
+        <button class="save-btn" onclick="saveVehicleSchedule()">💾 저장 (매주 반복 적용)</button>
       </div>
     </div>
   </div>
@@ -1382,29 +1409,94 @@ window.confirmCancel = () => {
 // ── 차량운행 ──────────────────────────────────────────────────────
 const VEHICLE_DAY_LABELS = ['월요일','화요일','수요일','목요일','금요일'];
 const VEHICLE_DAY_KEYS   = ['mon','tue','wed','thu','fri'];
+let vehicleEditDay  = 'mon';
+let vehicleEditOpen = false;
+
+function getTodayVehicleKey() {
+  const dow = currentDate.getDay();
+  return (dow >= 1 && dow <= 5) ? VEHICLE_DAY_KEYS[dow - 1] : null;
+}
 
 function buildVehicleWeekGrid() {
-  const wrap = document.getElementById('vehicleWeekGrid');
-  if (!wrap) return;
-  let html = '';
-  VEHICLE_DAY_KEYS.forEach((dk, i) => {
-    const sch  = vehicleSchedule[dk] || {};
-    const car1 = (sch.car1 || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    const car2 = (sch.car2 || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    html += `<div class="vehicle-week-day">
-      <div class="vehicle-day-hd">${VEHICLE_DAY_LABELS[i]}</div>
-      <div class="vehicle-car-row">
-        <span class="vehicle-car-lbl">1호차</span>
-        <input class="vehicle-car-inp" id="vsch_${dk}_car1" placeholder="운행 내용 입력..." value="${car1}">
-      </div>
-      <div class="vehicle-car-row">
-        <span class="vehicle-car-lbl">2호차</span>
-        <input class="vehicle-car-inp" id="vsch_${dk}_car2" placeholder="운행 내용 입력..." value="${car2}">
-      </div>
-    </div>`;
-  });
-  wrap.innerHTML = html;
+  renderVehicleTodayCard();
 }
+
+function renderVehicleTodayCard() {
+  const todayKey = getTodayVehicleKey();
+  const dow = currentDate.getDay();
+  const badge = document.getElementById('vtdDayBadge');
+  if (badge) badge.textContent = todayKey ? VEHICLE_DAY_LABELS[dow - 1] : '주말';
+  const wrap = document.getElementById('vehicleTodayCard');
+  if (!wrap) return;
+  if (!todayKey) {
+    wrap.innerHTML = `<div style="text-align:center;padding:22px 16px;color:var(--gray);font-size:13px;line-height:1.7;">주말에는 운행이 없습니다</div>`;
+    return;
+  }
+  const sch = vehicleSchedule[todayKey] || {};
+  const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  wrap.innerHTML = `
+    <div class="vtd-row">
+      <span class="vtd-lbl">1호차</span>
+      <span class="vtd-val${sch.car1 ? '' : ' vtd-empty'}">${sch.car1 ? esc(sch.car1) : '등록된 운행 없음'}</span>
+    </div>
+    <div class="vtd-row">
+      <span class="vtd-lbl">2호차</span>
+      <span class="vtd-val${sch.car2 ? '' : ' vtd-empty'}">${sch.car2 ? esc(sch.car2) : '등록된 운행 없음'}</span>
+    </div>`;
+}
+
+function renderVehicleEditPanel() {
+  const tabsEl = document.getElementById('vehicleEditTabs');
+  if (tabsEl) {
+    tabsEl.innerHTML = VEHICLE_DAY_KEYS.map((dk, i) =>
+      `<button class="vedit-tab${dk === vehicleEditDay ? ' on' : ''}" onclick="selectVehicleDay('${dk}')">${VEHICLE_DAY_LABELS[i].replace('요일','')}</button>`
+    ).join('');
+  }
+  const contentEl = document.getElementById('vehicleEditContent');
+  if (!contentEl) return;
+  const sch  = vehicleSchedule[vehicleEditDay] || {};
+  const car1 = (sch.car1 || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const car2 = (sch.car2 || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  contentEl.innerHTML = `
+    <div class="vehicle-car-row">
+      <span class="vehicle-car-lbl">1호차</span>
+      <input class="vehicle-car-inp" id="vedit_car1" placeholder="운행 내용 입력..." value="${car1}">
+    </div>
+    <div class="vehicle-car-row">
+      <span class="vehicle-car-lbl">2호차</span>
+      <input class="vehicle-car-inp" id="vedit_car2" placeholder="운행 내용 입력..." value="${car2}">
+    </div>`;
+}
+
+function saveCurrentEditInputs() {
+  if (!vehicleEditOpen) return;
+  if (!vehicleSchedule[vehicleEditDay]) vehicleSchedule[vehicleEditDay] = {};
+  vehicleSchedule[vehicleEditDay].car1 = document.getElementById('vedit_car1')?.value || '';
+  vehicleSchedule[vehicleEditDay].car2 = document.getElementById('vedit_car2')?.value || '';
+}
+
+window.toggleVehicleEdit = () => {
+  vehicleEditOpen = !vehicleEditOpen;
+  const panel = document.getElementById('vehicleEditPanel');
+  const btn   = document.getElementById('vehicleEditBtn');
+  if (vehicleEditOpen) {
+    const todayKey = getTodayVehicleKey();
+    if (todayKey) vehicleEditDay = todayKey;
+    panel?.classList.add('open');
+    if (btn) btn.style.display = 'none';
+    renderVehicleEditPanel();
+    setTimeout(() => panel?.scrollIntoView({ behavior:'smooth', block:'start' }), 80);
+  } else {
+    panel?.classList.remove('open');
+    if (btn) btn.style.display = '';
+  }
+};
+
+window.selectVehicleDay = (dk) => {
+  saveCurrentEditInputs();
+  vehicleEditDay = dk;
+  renderVehicleEditPanel();
+};
 
 function loadVehicleNote() {
   const el = document.getElementById('taVehicleNote');
@@ -1427,17 +1519,15 @@ window.saveVehicleNote = async () => {
 
 window.saveVehicleSchedule = async () => {
   if (!isOnline) { showToast('오프라인 상태입니다.'); return; }
-  const updates = {};
-  VEHICLE_DAY_KEYS.forEach(dk => {
-    updates[dk] = {
-      car1: document.getElementById('vsch_' + dk + '_car1')?.value || '',
-      car2: document.getElementById('vsch_' + dk + '_car2')?.value || '',
-    };
-  });
+  saveCurrentEditInputs();
   try {
-    await set(ref(db, `academies/${academyId}/vehicleSchedule`), updates);
-    vehicleSchedule = updates;
+    await set(ref(db, `academies/${academyId}/vehicleSchedule`), vehicleSchedule);
     showToast('🚗 운행표 저장 완료! 매주 자동 반복됩니다.');
+    vehicleEditOpen = false;
+    document.getElementById('vehicleEditPanel')?.classList.remove('open');
+    const btn = document.getElementById('vehicleEditBtn');
+    if (btn) btn.style.display = '';
+    renderVehicleTodayCard();
   } catch(e) { showToast('저장 오류: ' + e.message); }
 };
 
