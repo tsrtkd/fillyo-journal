@@ -1,0 +1,17 @@
+{
+  "rules": {
+    "users": {
+      ".read": "auth.token.email === 'audtls2g@gmail.com'",
+      "$uid": {
+        ".read":  "auth.uid === $uid || auth.token.email === 'audtls2g@gmail.com'",
+        ".write": "auth.uid === $uid || auth.token.email === 'audtls2g@gmail.com'"
+      }
+    },
+    "academies": {
+      ".read": "auth != null",
+      "$acadId": {
+        ".write": "auth != null"
+      }
+    }
+  }
+}
